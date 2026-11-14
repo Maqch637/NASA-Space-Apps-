@@ -1,0 +1,6 @@
+streamlit
+astropy
+astroquery
+matplotlib
+reproject
+pyvo
