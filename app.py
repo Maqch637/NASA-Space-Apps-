@@ -177,8 +177,7 @@ def render_annotated_frame(data, title, target_pos, bg_stars, cmap="inferno", is
     
     cbar = fig.colorbar(im, ax=ax, label=cbar_label, fraction=0.046, pad=0.04)
     cbar.set_label(cbar_label, color="#cbd5e1")
-    cbar.ax.yaxis.set_tick_params(color="#cbd5e1")
-    plt.setp(plt.getp(cbar.ax.axes, 'yticklabellist'), color="#cbd5e1")
+    cbar.ax.yaxis.set_tick_params(color="#cbd5e1", labelcolor="#cbd5e1")
     
     plt.tight_layout()
     return fig
