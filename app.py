@@ -11,6 +11,31 @@ st.set_page_config(
     layout="wide",
 )
 
+# --- VIBRANT COSMIC UI STYLING & CUSTOM CSS ---
+st.markdown(
+    """
+    <style>
+    /* Global Cosmic Background Gradient */
+    .stApp {
+        background: linear-gradient(135deg, #0b0f19 0%, #171c30 40%, #2b1035 100%);
+        color: #f1f5f9;
+    }
+    
+    /* Custom Sidebar Styling */
+    section[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%);
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Card containers styling */
+    div.stMarkdown {
+        color: #f1f5f9;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # Initialize Session State for Multi-Step Onboarding (Welcome & Sign-Up)
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
@@ -21,17 +46,25 @@ if "user_role" not in st.session_state:
 
 # --- 1. WELCOME & SIGN-UP PAGE ---
 if not st.session_state.logged_in:
-    st.markdown("<h1 style='text-align: center;'>🌌 Astrion Multi-Epoch Sky Explorer</h1>", unsafe_allow_html=True)
-    st.markdown("<h4 style='text-align: center; color: #a0aec0;'>NASA Space Apps Challenge 2026</h4>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center; color: #38bdf8;'>🌌 Astrion Multi-Epoch Sky Explorer</h1>", unsafe_allow_html=True)
+    st.markdown("<h4 style='text-align: center; color: #c084fc;'>NASA Space Apps Challenge — Interactive Mission Portal</h4>", unsafe_allow_html=True)
     st.write("---")
 
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.markdown("### 👋 Welcome, Explorer!")
         st.markdown(
-            "Discover the dynamic universe through infrared eyes. This portal allows you to query "
-            "NASA archives, track stellar motion across multiple epochs, and detect cosmic changes easily."
+            """
+            <div style="background: rgba(30, 27, 75, 0.6); padding: 30px; border-radius: 15px; border: 1px solid rgba(192, 132, 252, 0.3); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);">
+                <h3 style='color: #38bdf8; margin-top: 0;'>👋 Welcome, Space Explorer!</h3>
+                <p style='color: #e2e8f0; font-size: 15px;'>
+                    Discover the dynamic universe through infrared eyes. Query NASA archives, 
+                    track stellar proper motion across multiple epochs, and analyze automated difference imaging.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
+        st.write("")
         
         with st.form("signup_form"):
             st.markdown("#### 🚀 Researcher Onboarding")
@@ -79,8 +112,12 @@ target_seed = int(hashlib.sha256(target_key.encode("utf-8")).hexdigest()[:8], 16
 
 
 def render_annotated_frame(data, title, target_pos, bg_stars, cmap="inferno", is_diff=False):
-    """Renders a smooth telescope frame with direct text labels on key celestial objects."""
+    """Renders a smooth telescope frame with direct text labels on key celestial objects matching the cosmic theme."""
     fig, ax = plt.subplots(figsize=(7, 6), dpi=180)
+    
+    # Match plot background to the dark cosmic theme
+    fig.patch.set_facecolor("#111827")
+    ax.set_facecolor("#0b0f19")
     
     if is_diff:
         vmax = np.percentile(np.abs(data), 99.5)
@@ -108,16 +145,16 @@ def render_annotated_frame(data, title, target_pos, bg_stars, cmap="inferno", is
 
     # Annotate the main moving target star
     tx, ty = target_pos
-    ax.scatter(tx, ty, s=90, facecolors='none', edgecolors='cyan', linewidths=1.8)
+    ax.scatter(tx, ty, s=90, facecolors='none', edgecolors='#38bdf8', linewidths=1.8)
     ax.annotate(
         f"⭐ {target_name}\n(Moving Target)",
         xy=(tx, ty),
         xytext=(tx + 15, ty + 15),
-        arrowprops=dict(facecolor='cyan', shrink=0.05, width=1, headwidth=5),
+        arrowprops=dict(facecolor='#38bdf8', shrink=0.05, width=1, headwidth=5),
         fontsize=8,
         color='white',
         weight='bold',
-        bbox=dict(boxstyle="round,pad=0.3", fc="black", ec="cyan", alpha=0.7)
+        bbox=dict(boxstyle="round,pad=0.3", fc="#1e1b4b", ec="#38bdf8", alpha=0.8)
     )
 
     # Annotate a reference background star for comparison
@@ -127,16 +164,22 @@ def render_annotated_frame(data, title, target_pos, bg_stars, cmap="inferno", is
             "📌 Ref Star A\n(Stationary)",
             xy=(rx, ry),
             xytext=(rx - 35, ry - 25),
-            arrowprops=dict(facecolor='yellow', shrink=0.05, width=1, headwidth=5),
+            arrowprops=dict(facecolor='#facc15', shrink=0.05, width=1, headwidth=5),
             fontsize=7,
-            color='yellow',
-            bbox=dict(boxstyle="round,pad=0.3", fc="black", ec="yellow", alpha=0.6)
+            color='#facc15',
+            bbox=dict(boxstyle="round,pad=0.3", fc="#1e1b4b", ec="#facc15", alpha=0.8)
         )
 
-    ax.set_title(title, fontsize=11, fontweight="bold", pad=12)
-    ax.set_xlabel("X Pixel (Detector Array)", fontsize=9)
-    ax.set_ylabel("Y Pixel (Detector Array)", fontsize=9)
-    fig.colorbar(im, ax=ax, label=cbar_label, fraction=0.046, pad=0.04)
+    ax.set_title(title, fontsize=11, fontweight="bold", pad=12, color="#f8fafc")
+    ax.set_xlabel("X Pixel (Detector Array)", fontsize=9, color="#cbd5e1")
+    ax.set_ylabel("Y Pixel (Detector Array)", fontsize=9, color="#cbd5e1")
+    ax.tick_params(colors="#cbd5e1", labelsize=8)
+    
+    cbar = fig.colorbar(im, ax=ax, label=cbar_label, fraction=0.046, pad=0.04)
+    cbar.set_label(cbar_label, color="#cbd5e1")
+    cbar.ax.yaxis.set_tick_params(color="#cbd5e1")
+    plt.setp(plt.getp(cbar.ax.axes, 'yticklabellist'), color="#cbd5e1")
+    
     plt.tight_layout()
     return fig
 
@@ -307,7 +350,7 @@ if st.button("Fetch & Analyze NASA Data", type="primary"):
                 )
                 st.success(
                     "**Key Takeaways for Judges:**\n"
-                    "1. **Stationary Background:** All surrounding stars cancel out into neutral white/green because they didn't move.\n"
+                    "1. **Stationary Background:** All surrounding stars cancel out into neutral dark because they didn't move.\n"
                     "2. **The Target's Trail:** The blue and red spots directly highlight the exact trajectory of the target star traveling across space over time!"
                 )
 
