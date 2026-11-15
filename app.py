@@ -11,14 +11,58 @@ st.set_page_config(
     layout="wide",
 )
 
-# App Header
-st.title("🌌 Astrion Multi-Epoch Sky Explorer")
-st.markdown(
-    "An intuitive, laymen-friendly portal for exploring multi-epoch infrared sky observations, "
-    "tracking stellar motion, and analyzing automated difference imaging for the NASA Space Apps Challenge."
-)
+# Initialize Session State for Multi-Step Onboarding (Welcome & Sign-Up)
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+if "user_name" not in st.session_state:
+    st.session_state.user_name = ""
+if "user_role" not in st.session_state:
+    st.session_state.user_role = "Space Enthusiast"
 
-# Sidebar Settings for Dynamic Target Selection
+# --- 1. WELCOME & SIGN-UP PAGE ---
+if not st.session_state.logged_in:
+    st.markdown("<h1 style='text-align: center;'>🌌 Astrion Multi-Epoch Sky Explorer</h1>", unsafe_allow_html=True)
+    st.markdown("<h4 style='text-align: center; color: #a0aec0;'>NASA Space Apps Challenge 2026</h4>", unsafe_allow_html=True)
+    st.write("---")
+
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.markdown("### 👋 Welcome, Explorer!")
+        st.markdown(
+            "Discover the dynamic universe through infrared eyes. This portal allows you to query "
+            "NASA archives, track stellar motion across multiple epochs, and detect cosmic changes easily."
+        )
+        
+        with st.form("signup_form"):
+            st.markdown("#### 🚀 Researcher Onboarding")
+            name_input = st.text_input("Your Name / Team Name", placeholder="e.g., Team Starlight")
+            role_input = st.selectbox(
+                "Select Your Background", 
+                ["Space Enthusiast / Layman", "Student / Hacker", "Citizen Scientist", "Professional Astronomer"]
+            )
+            
+            submit_button = st.form_submit_button("Enter Mission Control ➔", type="primary")
+            if submit_button:
+                if name_input.strip():
+                    st.session_state.logged_in = True
+                    st.session_state.user_name = name_input
+                    st.session_state.user_role = role_input
+                    st.rerun()
+                else:
+                    st.error("Please enter your name or team name to proceed.")
+                    
+    st.stop()  # Pause execution here until the user signs up
+
+# --- 2. MAIN DASHBOARD (Post-Login) ---
+
+# Sidebar Profile & Target Controls
+st.sidebar.markdown(f"👤 **Explorer:** `{st.session_state.user_name}`")
+st.sidebar.markdown(f"🏷️ **Role:** `{st.session_state.user_role}`")
+if st.sidebar.button("🔄 Logout / Reset"):
+    st.session_state.logged_in = False
+    st.rerun()
+
+st.sidebar.markdown("---")
 st.sidebar.header("🔭 Target & Sky Settings")
 target_name = st.sidebar.text_input("Target Star / Object", value="Barnard's Star")
 
@@ -64,7 +108,7 @@ def render_annotated_frame(data, title, target_pos, bg_stars, cmap="inferno", is
 
     # Annotate the main moving target star
     tx, ty = target_pos
-    ax.scatter(tx, ty, s=80, facecolors='none', edgecolors='cyan', linewidths=1.5)
+    ax.scatter(tx, ty, s=90, facecolors='none', edgecolors='cyan', linewidths=1.8)
     ax.annotate(
         f"⭐ {target_name}\n(Moving Target)",
         xy=(tx, ty),
@@ -96,6 +140,10 @@ def render_annotated_frame(data, title, target_pos, bg_stars, cmap="inferno", is
     plt.tight_layout()
     return fig
 
+
+# App Header
+st.title(f"🌌 Mission Control: {target_name}")
+st.markdown(f"Welcome back, **{st.session_state.user_name}**! Explore multi-epoch observations, verify stellar proper motion, and review automated difference imaging below.")
 
 # Interactive button to trigger data processing
 if st.button("Fetch & Analyze NASA Data", type="primary"):
@@ -211,7 +259,7 @@ if st.button("Fetch & Analyze NASA Data", type="primary"):
                 st.pyplot(fig2)
                 plt.close(fig2)
 
-            # Layman comparison metrics table (safely formatted)
+            # Layman comparison metrics table
             st.markdown("#### 📊 Quick Comparison Summary Table for Judges")
             st.markdown(f"""
 | Metric | Epoch 1 Observation | Epoch 5 Observation | What This Means in Plain English |
@@ -264,4 +312,4 @@ if st.button("Fetch & Analyze NASA Data", type="primary"):
                 )
 
 else:
-    st.info("👈 Enter your target star in the sidebar (e.g., Barnard's Star, Vega, Sirius) and click **Fetch & Analyze NASA Data** to start!")
+    st.info("👈 Use the sidebar to set your target object, then click **Fetch & Analyze NASA Data** above to start exploring!")
